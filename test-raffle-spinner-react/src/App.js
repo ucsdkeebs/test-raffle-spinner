@@ -1,18 +1,22 @@
 import './App.css';
 //import { Button } from '@mui/material';
 import {useState, useEffect} from 'react';
-import { useGSAP } from "@gsap/react";
 import { gsap } from 'gsap';
-import Triangle from './triangle.jsx';
 import Winscreen from './winscreen.jsx';
+import AnimationRenderer from './animation.jsx';
+import raffleFrame from './img/Raffle_Frame.png';
+
+import animationStatic from './img/Animation_Frames/kwibs_0000.png';
+import animation from './img/kwibs.gif';
 
 function App() {
+
   // array to store raffle data
   const [raffle, setRaffle] = useState([]);
   
   // the values that are displayed on the slot
   const [slotValues, setSlotValues] = useState(['.','.','.','.','.','.','.','.','.','.'])
-
+  
   // whether or not the modal should be opened
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -35,19 +39,48 @@ function App() {
     setModalIsOpen(false);
   };
 
+  // calls fetch data command just to avoid errors at the start
+  useEffect(() => {
+    console.log('no dependencies');
+    fetchData();
+    fetchNumWinner();
+  }, []);
+
+  // sets the state of raffle array
+  useEffect(() => {
+    //console.log('Raffle state updated:', raffle);
+    let slots = raffle.slice(0,10);
+    let parseSlots = []
+    for (let i = 0; i < slots.length; i++)
+    {
+      if (slots[i].length > 1)
+      {
+        parseSlots.push(slots[i][0]);
+      }
+    }
+    //console.log("CURRENT SLOTS: ", parseSlots);
+    setSlotValues(parseSlots);
+  }, [raffle]);
+
+  useEffect(() => {
+    console.log(currentWinIndex);
+  }, [currentWinIndex])
+
+
   /**
    * Calls to GoogleSheets API to retrieve list of valid people to enter raffle
    * sets the raffle array to this list retrieved
    */
   const fetchData = async () => {
-    console.log('fetch test!');
+    //console.log('fetch test!');
     const backendUrl = 'http://localhost:3001/api/get-google-sheet-data';
 
     try {
       const response = await fetch(backendUrl);
       const data = await response.json();
       const info = parseData(data);
-      await setRaffle(info);    
+      setRaffle(info); 
+      return info;   
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -72,52 +105,54 @@ function App() {
     }
   }
 
-  const updateData = async () => {
-    // creates the api query with the relevant information
-    const backendUrl = `http://localhost:3001/api/add-winner/${winner[2]}/${currentWinIndex}/${winner[0]}/${winner[1]}`;
+  const addProtectedData = async () => {
+    //console.log('protecting data');
+    const backendUrl = 'http://localhost:3001/api/add-protection';
 
     try {
       const response = await fetch(backendUrl,{
         method: "POST"
       });
-      const data = await response.json();
+      const protectedId = await response.json();
+      return protectedId;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  const updateProtectData = async (dataProtected) => {
+    //console.log(`unprotecting Data: ${dataProtected}`);
+    const backendUrl = `http://localhost:3001/api/remove-protection/${dataProtected}`;
+
+    try {
+      const response = await fetch(backendUrl, {
+        method: "POST"
+      });
+      console.log(response);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  const updateData = async () => {
+    // creates the api query with the relevant information
+    const backendUrl = `http://localhost:3001/api/add-winner/${winner[3]}/${currentWinIndex}/${winner[0]}/${winner[1]}/${winner[2]}`;
+
+    try {
+      const response = await fetch(backendUrl,{
+        method: "POST"
+      });
+      //const data = await response.json();
       setCurrentWinIndex(currentWinIndex + 1); 
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-  // sets the state of raffle array
-  useEffect(() => {
-    console.log('Raffle state updated:', raffle);
-    let slots = raffle.slice(0,10);
-    let parseSlots = []
-    for (let i = 0; i < slots.length; i++)
-    {
-      if (slots[i].length > 1)
-      {
-        parseSlots.push(slots[i][0]);
-      }
-    }
-    console.log("CURRENT SLOTS: ", parseSlots);
-    setSlotValues(parseSlots);
-  }, [raffle]);
-
-  // calls fetch data command just to avoid errors at the start
-  useEffect(() => {
-    console.log('no dependencies');
-    fetchData();
-    fetchNumWinner();
-  }, []);
-
-  useEffect(() => {
-    console.log(currentWinIndex);
-  }, [currentWinIndex])
-
-  const rollNames = async () => {
-    console.log(raffle);
+  const rollNames = async (raffleNames) => {
+    console.log(raffleNames);
     // picks a random index to start the spin
-    var start = Math.floor(Math.random() * raffle.length); 
+    var start = Math.floor(Math.random() * raffleNames.length); 
     // the number of times to spin the wheel, with built in spin so that it always looks like it spins 
     var spins = Math.floor(Math.random() * 20) + 73; 
     for (let i = start; i <= start + spins; i++) {
@@ -129,26 +164,27 @@ function App() {
             
       await gsap.to(".slot", { // animates a slide downward
         duration: delay, // Animation duration in seconds
-        y: "+=8vh", // Move each element down by one slot
+        y: "+=4.54vw", // Move each element down by one slot
         ease: "power4.out", // Easing function 
         // after roll completed, resets the divs with new values, i.e. slot2 goes back to its original place, but with the value of the old slot3 so the roll is complete
         onComplete: () => {
           const shiftedSlots = [];
           for (let j = slotValues.length; j > 0; j--) {
             //console.log(parsedData[(i + j - (slotValues.length / 2)) % parsedData.length][0]);
-            shiftedSlots.push(raffle[(i + j - (slotValues.length / 2)) % raffle.length][0]);
+            let index = (i + j - (slotValues.length / 2));
+            shiftedSlots.push(raffleNames[(index >= 0 ? index : raffleNames.length + index) % raffleNames.length][0]);
           }
           setSlotValues(shiftedSlots);
           gsap.set(".slot", { //set resets the slots to their original place
-            y: "-=8vh"
+            y: "-=4.54vw"
           })
         }
       });
     }
 
     // gets winning index and sets the winner to be the string at that index
-    let winIndex = (start + spins) % raffle.length;
-    setWinner(raffle[winIndex]);
+    let winIndex = (start + spins) % raffleNames.length;
+    setWinner(raffleNames[winIndex]);
   }
 
   // creates array of numbers 1-10 to be used to create the slots
@@ -157,34 +193,46 @@ function App() {
     numbers.push(i);
   }
 
+  const handleAnimationClick = async () => {
+    setButtonDisabled(true);
+    const protectedId = await addProtectedData();
+    const updatedRaffle = await fetchData();
+    console.log(updatedRaffle);
+    
+    await rollNames(updatedRaffle);
+    await sleep(1000);
+  
+    openModal();
+    updateProtectData(protectedId);
+    setButtonDisabled(false);
+  };  
+
   return (
     <div className="raffle">
+
+        <div className ="Animation">
+          <AnimationRenderer
+              onAnimate={handleAnimationClick}
+              staticSrc={animationStatic}
+              gifSrc={animation}
+              animationDuration={9000} // Example: 5000 milliseconds for a 5-second GIF
+          />
+        </div>
+
+        <div className = "frame">
+            <img id="slotframe" src={raffleFrame} alt="Raffle Frame" />
+        </div> 
         <div className="raffleBody">
-            <Edge type="top"/>
+            {/* <Edge id="top"/> */}
             {numbers.map((number) => (
               <Slot key={number} value={slotValues[number]} slotNumber={number} />
             ))}
-            <Edge type="bottom"/>
-            <Triangle/>
-        </div>
-
+            {/* <Edge id="bottom"/> */}
+        </div>       
+        {/*Keep this in case it messes with formatting */}
         <div className="LowerRaffle">
-        <button id="roll" disabled = {isButtonDisabled} onClick={async() => {
-          setButtonDisabled(true);
-          await fetchData();
-          
-          await rollNames();
-
-          // delay to make the animation smoother
-          await sleep(1000); 
-    
-          openModal();
-          setButtonDisabled(false);
-        }}>
-              Spin
-            </button>
         </div>
-        
+
         <Winscreen
           isOpen={modalIsOpen}
           closeModal={closeModal}
@@ -193,7 +241,7 @@ function App() {
             updateData()
             closeModal()
           }}
-        />
+        /> 
     </div>
     
   );
@@ -213,7 +261,7 @@ function parseData(data) {
     if ((data[i][4] === "TRUE") && (data[i][5] === "FALSE")) {
       // accounts for any extra tickets that the entry has
       for (let j = 0; j < parseInt(data[i][3]) + 1; j++) {
-        output.push([data[i][1], data[i][2], parseInt(i) + 2]);
+        output.push([data[i][1], data[i][2], data[i][0], parseInt(i) + 2]);
       }
     }
   }
@@ -253,51 +301,9 @@ function shuffle(array) {
   return array;
 }
 
-function Edge({type}){
-  return (
-    <div id={type} className="edge"></div>
-  );
-}
-
-function SelectOption() {
-
-  const [selectedOption, setSelectedOption] = useState('Names');
-
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
-
-  return (
-    <div id="refreshForm">
-      <h2 >Select an Option:</h2>
-      <form >
-        <label>
-          <input
-            type="radio"
-            name="refreshOption"
-            value="Names"
-            checked={selectedOption === 'Names'}
-            onChange={handleOptionChange}
-            // onClick={}
-          />
-          Names
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            name="refreshOption"
-            value="Numbers"
-            checked={selectedOption === 'Numbers'}
-            onChange={handleOptionChange}
-          />
-          Numbers
-        </label>
-      </form>
-
-      <p>You selected: {selectedOption}</p>
-    </div>
-  );
-}
-
+// function Edge({type}){
+//   return (
+//     <div id={type} className="edge"></div>
+//   );
+// }
 export default App;

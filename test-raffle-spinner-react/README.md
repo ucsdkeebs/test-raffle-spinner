@@ -1,70 +1,24 @@
-# Getting Started with Create React App
+# UCSD Keebs Raffle Spinner
+**Contributors: Colin Wang and Andrew Nguyen**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repo is used to create a new raffle spinner to be used for UCSD Meets.
 
-## Available Scripts
+Based on the limitations on the whole wheel, we decided to go for a vertical wheel spinner approach.
 
-In the project directory, you can run:
+There is a version in React inside of the `test-raffle-react-spinner` folder.
 
-### `npm start`
+Run steps:
+- Need two terminals, one to run the API, and one to run the spinner itself, type `cd test-raffle-react-spinner` for both
+- The google sheets that the code queries from is [check-in](https://docs.google.com/spreadsheets/d/1GKyP_61jo1Btik3lX_qalejXb_0txDFv5dvhEJ20S24/edit#gid=901739931)
+***API***
+- `cd server`
+- `node index.js`
+***Spinner***
+- `cd src`
+- `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+***Current Progress***: Basic Functionalities are done, works for sample numbers
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+***TODO***: Make it look prettier LOL
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Link to the raffle spinner can be found [here](https://ucsdkeebs.github.io/test-raffle-spinner/public/spin.html)
